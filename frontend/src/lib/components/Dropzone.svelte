@@ -55,7 +55,7 @@
 	<input
 		id="file-upload"
 		type="file"
-		accept="audio/mpeg, audio/wav, audio/ogg"
+		accept="audio/mpeg, audio/wav, audio/ogg, audio/flac, audio/m4a"
 		class="hidden"
 		onchange={handleFileChange}
 	/>
