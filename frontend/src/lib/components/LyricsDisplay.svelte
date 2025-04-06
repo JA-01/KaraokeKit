@@ -26,7 +26,7 @@
 			isLoading = true;
 			error = null;
 
-			const BACKEND_URL = 'https://40aa-66-129-246-4.ngrok-free.app';
+			const BACKEND_URL = 'https://6f62-66-129-246-4.ngrok-free.app';
 			const response = await fetch(`${BACKEND_URL}/lyrics`, {
 				method: 'POST',
 				headers: {
