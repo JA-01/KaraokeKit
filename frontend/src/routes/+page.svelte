@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-
-	import AudioPlayer from '$lib/components/AudioPlayer.svelte';
+	import { Loader2 } from 'lucide-svelte';
 
 	let file = $state<File | null>(null);
 	let isDragging = $state(false);
 	let processedAudioUrl = $state<string | null>(null);
+	let initiatedProcessing = $state(false);
 
 	function handleDrop(event: DragEvent) {
 		event.preventDefault();
@@ -47,6 +47,7 @@
 		formData.append('file', file);
 
 		try {
+			initiatedProcessing = true;
 			const response = await fetch(`${BACKEND_URL}/process`, {
 				method: 'POST',
 				body: formData
@@ -57,11 +58,10 @@
 				return;
 			}
 
-			console.log(response);
-
 			// get audio file from response
 			const blob = await response.blob();
 			processedAudioUrl = URL.createObjectURL(blob);
+			initiatedProcessing = false;
 		} catch (error) {
 			console.error('Error uploading file:', error);
 		}
@@ -106,11 +106,20 @@
 
 	{#if !file}
 		<Button onclick={triggerFileSelect}>Choose File</Button>
+	{:else if initiatedProcessing}
+		<Button disabled={true}>
+			<Loader2 class="h-4 w-4 animate-spin" /> Processing audio file...</Button
+		>
 	{:else}
 		<Button onclick={uploadFile} disabled={!file}>Process Audio</Button>
 	{/if}
 
 	{#if processedAudioUrl}
-		<AudioPlayer src={processedAudioUrl} />
+		<div class="mt-6 w-full max-w-xl rounded-xl bg-white p-4 shadow-md dark:bg-zinc-900">
+			<audio class="w-full" controls>
+				<source src={processedAudioUrl} type="audio/mpeg" />
+				Your browser does not support the audio element.
+			</audio>
+		</div>
 	{/if}
 </div>
