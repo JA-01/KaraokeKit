@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 
+	import AudioPlayer from '$lib/components/AudioPlayer.svelte';
+
 	let file = $state<File | null>(null);
 	let isDragging = $state(false);
+	let processedAudioUrl = $state<string | null>(null);
 
 	function handleDrop(event: DragEvent) {
 		event.preventDefault();
@@ -58,13 +61,7 @@
 
 			// get audio file from response
 			const blob = await response.blob();
-			const audioUrl = URL.createObjectURL(blob);
-
-			const audioElement = document.createElement('audio');
-			audioElement.src = audioUrl;
-			audioElement.controls = true;
-			audioElement.autoplay = true;
-			document.body.appendChild(audioElement);
+			processedAudioUrl = URL.createObjectURL(blob);
 		} catch (error) {
 			console.error('Error uploading file:', error);
 		}
@@ -111,5 +108,9 @@
 		<Button onclick={triggerFileSelect}>Choose File</Button>
 	{:else}
 		<Button onclick={uploadFile} disabled={!file}>Process Audio</Button>
+	{/if}
+
+	{#if processedAudioUrl}
+		<AudioPlayer src={processedAudioUrl} />
 	{/if}
 </div>
