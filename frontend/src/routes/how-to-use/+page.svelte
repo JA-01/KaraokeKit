@@ -23,7 +23,8 @@
         How to Use KaraokeKit
     </h1>
     <ol class="mt-4 text-lg leading-relaxed list-decimal list-inside">
-        <li>Upload your audio file using the upload button on the homepage. Supported formats include MP3, WAV, and OGG. Or, upload a link to a YouTube video in the YouTube Generator tab and have the same results!</li>
+        <li>Upload your audio file using the upload button on the homepage. Supported formats include MP3, WAV, and OGG.</li>
+        <li>Or, paste a YouTube link in the YouTube Generator tab to process the video.</li>
         <li>Wait for the processing to complete. KaraokeKit uses advanced audio processing algorithms to separate the vocals and instrumentals of the song.</li>
         <li>Once processing is complete, KaraokeKit allows you to play back the instrumental track while displaying the lyrics on screen.</li>
         <li>Grab your microphone (or just sing out loud) and enjoy karaoke with any song you love!</li>

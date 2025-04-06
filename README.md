@@ -42,12 +42,15 @@ KaraokeKit is a powerful and easy-to-use platform that transforms any song into 
 - **Framework**: Built with [SvelteKit](https://kit.svelte.dev/) for a fast and responsive user interface.
 - **Features**:
   - Drag-and-drop file upload.
+  - YouTube link processing.
   - Real-time lyrics synchronization.
   - Audio playback with a sleek UI.
+  - Light/Dark mode toggle.
 
 ### Backend
 - **Framework**: Built with [Flask](https://flask.palletsprojects.com/) for handling API requests.
 - **Features**:
   - Separates vocals and instrumentals using the `audio-separator` library.
-  - Server-side file processing.
-  - Plays the returned instrumental track on the browser.
+  - Transcribes lyrics using OpenAI's `whisper` model.
+  - Processes YouTube links and extracts audio.
+  - Returns instrumental tracks and synchronized lyrics.

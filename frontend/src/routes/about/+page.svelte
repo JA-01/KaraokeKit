@@ -37,7 +37,7 @@
             class={`font-bold py-2 px-6 rounded-full shadow-md transition ${
                 isDarkMode
                     ? "bg-pink-700 text-white hover:bg-pink-800"
-                    : "bg-pink-200 text-black hover:bg-purple-300"
+                    : "bg-pink-200 text-black hover:bg-pink-300"
             }`}
             on:click={() => goto('/')}
         >
