@@ -23,11 +23,11 @@
 <Navbar />
 
 <div
-	class={`min-h-screen text-white bg-gradient-to-br ${
-		isDarkMode ? 'from-gray-900 via-pink-900 to-black' : 'from-purple-600 via-pink-500 to-red-600'
+	class={`min-h-screen bg-gradient-to-br text-white ${
+		isDarkMode ? 'from-gray-900 via-pink-900 to-black' : 'from-purple-300 via-pink-200 to-red-300'
 	}`}
 >
-    <main class="flex flex-col items-center justify-center px-6 py-12">
-        {@render children()}
-    </main>
+	<main class="flex flex-col items-center justify-center px-6 py-12">
+		{@render children()}
+	</main>
 </div>
