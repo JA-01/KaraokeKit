@@ -17,6 +17,13 @@ separator.load_model()
 def helloworld():
     return Response("Hello World")
 
+@app.route('/lyrics', methods=['POST'])
+@cross_origin()
+def lyrics():
+    pass
+    #pass in a filename that represents the audio
+    # it'll check the audio file with the same name, and return the subtitles from that audio file
+
 @app.route('/process', methods=['POST'])
 @cross_origin()
 def process():
