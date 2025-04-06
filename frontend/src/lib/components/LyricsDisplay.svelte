@@ -31,7 +31,7 @@
 			isLoading = true;
 			error = null;
 
-			const BACKEND_URL = 'https://6f62-66-129-246-4.ngrok-free.app';
+			const BACKEND_URL = 'https://5fd9-66-129-246-4.ngrok-free.app';
 
 			if (youtubeUrl.length > 0) {
 				youtubeUrl = youtubeUrl.replace('https://www.youtube.com/watch?v=', '');
