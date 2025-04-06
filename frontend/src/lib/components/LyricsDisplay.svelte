@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	const { audioElement = null, audioFileName = '' } = $props<{
+	let {
+		audioElement = null,
+		audioFileName = '',
+		youtubeUrl = ''
+	} = $props<{
 		audioElement: HTMLAudioElement | null;
 		audioFileName: string;
+		youtubeUrl: string;
 	}>();
 
 	// State
@@ -27,13 +32,19 @@
 			error = null;
 
 			const BACKEND_URL = 'https://6f62-66-129-246-4.ngrok-free.app';
+
+			if (youtubeUrl.length > 0) {
+				youtubeUrl = youtubeUrl.replace('https://www.youtube.com/watch?v=', '');
+				console.log(youtubeUrl);
+			}
+
 			const response = await fetch(`${BACKEND_URL}/lyrics`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					text: audioFileName
+					text: youtubeUrl
 				})
 			});
 

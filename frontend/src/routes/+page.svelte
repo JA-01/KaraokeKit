@@ -106,7 +106,7 @@
 			Your browser does not support the audio element.
 		</audio>
 
-		<LyricsDisplay {audioElement} audioFileName={file.name} />
+		<LyricsDisplay {audioElement} audioFileName={file.name} youtubeUrl="" />
 
 		<div class="mt-4">
 			<Button onclick={reset} class="gap-2">
