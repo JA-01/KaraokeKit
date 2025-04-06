@@ -24,7 +24,7 @@
 
 <div
 	class={`min-h-screen bg-gradient-to-br text-white ${
-		isDarkMode ? 'from-gray-900 via-pink-900 to-black' : 'from-purple-300 via-pink-200 to-red-300'
+		isDarkMode ? 'from-gray-900 via-pink-900 to-black' : 'text-black from-purple-300 via-pink-200 to-red-300'
 	}`}
 >
 	<main class="flex flex-col items-center justify-center px-6 py-12">

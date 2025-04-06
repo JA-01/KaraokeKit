@@ -1,10 +1,27 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 
+    import { onMount } from "svelte";
+
+    let isDarkMode = false;
+
+    onMount(() => {
+        isDarkMode = document.documentElement.classList.contains("dark");
+
+        const observer = new MutationObserver(() => {
+            isDarkMode = document.documentElement.classList.contains("dark");
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+        return () => observer.disconnect();
+    });
 </script>
 
-<div class="bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg p-8 max-w-3xl text-center">
-    <h1 class="text-5xl font-extrabold mb-6 text-white-300 drop-shadow-lg">
+<div
+    class={`bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg p-8 max-w-3xl text-center ${
+        isDarkMode ? "text-white" : "text-black"
+    }`}
+>
+    <h1 class="text-5xl font-extrabold mb-6 drop-shadow-lg">
         About KaraokeKit
     </h1>
     <p class="text-lg leading-relaxed">
@@ -17,7 +34,11 @@
     </p>
     <div class="mt-8">
         <button
-            class="bg-white-300 text-black-800 font-bold py-2 px-6 rounded-full shadow-md hover:bg-yellow-400 transition"
+            class={`font-bold py-2 px-6 rounded-full shadow-md transition ${
+                isDarkMode
+                    ? "bg-pink-700 text-white hover:bg-pink-800"
+                    : "bg-pink-200 text-black hover:bg-purple-300"
+            }`}
             on:click={() => goto('/')}
         >
             Get Started
