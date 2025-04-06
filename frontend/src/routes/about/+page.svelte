@@ -17,7 +17,7 @@
     </p>
     <div class="mt-8">
         <button
-            class="bg-yellow-300 text-purple-800 font-bold py-2 px-6 rounded-full shadow-md hover:bg-yellow-400 transition"
+            class="bg-white-300 text-black-800 font-bold py-2 px-6 rounded-full shadow-md hover:bg-yellow-400 transition"
             on:click={() => goto('/')}
         >
             Get Started
