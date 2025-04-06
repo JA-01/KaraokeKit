@@ -2,6 +2,8 @@ from flask import *
 from flask_cors import CORS, cross_origin
 import os
 from audio_separator.separator import Separator
+import whisper
+from whisper.utils import get_writer
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -12,6 +14,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 separator = Separator()
 separator.load_model()
 
+model = whisper.load_model()
+
 @app.route('/helloworld', methods=['GET'])
 @cross_origin()
 def helloworld():
@@ -20,9 +24,24 @@ def helloworld():
 @app.route('/lyrics', methods=['POST'])
 @cross_origin()
 def lyrics():
-    pass
-    #pass in a filename that represents the audio
-    # it'll check the audio file with the same name, and return the subtitles from that audio file
+    data = request.get_json()
+    text = data['text']
+
+    audiofile = os.path.join(os.getcwd(), "static", text.split('.')[0], text)
+    if not os.path.isfile(audiofile):
+        return abort(404, description="File not found")
+    result = model.transcribe(audiofile, word_timestamps=True)
+
+    output_directory = os.path.join(os.getcwd(), "static", text.split('.')[0])
+    writer = get_writer("srt", output_directory)
+    writer(result, output_directory)
+
+    return send_file(
+        os.path.join(output_directory),
+        mimetype='text/plain', 
+        as_attachment=True,
+        download_name="srtfile"
+    )
 
 @app.route('/process', methods=['POST'])
 @cross_origin()
