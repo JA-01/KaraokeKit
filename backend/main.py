@@ -2,12 +2,11 @@ from flask import Flask, request, Response, send_file
 from flask_cors import CORS, cross_origin
 import os
 from audio_separator.separator import Separator
-from dotenv import load_dotenv
-from io import BytesIO, StringIO
+from io import BytesIO
 import requests
-from elevenlabs.client import ElevenLabs
-import re
+import whisper
 import time
+import yt_dlp
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -17,15 +16,67 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 separator = Separator()
 separator.load_model()
-client = ElevenLabs(
-    api_key="sk_8a9b175e93f1690b86df18ddcf1e45632b65578c74aafbc1"
-)
-TIME_BETWEEN_SENTENCES = 3  # seconds
+
+whisper_model = whisper.load_model("small.en")
+
+@app.route('/ytdl', methods=['GET'])
+@cross_origin
+def yt_splitter():
+    data = request.get_json()
+    url = data.get('url')
+    save_path = yt_download(url)
+
+    outputfolder = os.path.join(os.getcwd(), "static", url.split('=')[-1])
+
+    custom_output_names = {
+        "vocals": os.path.join(outputfolder, "vocals"),
+        "instrumental": os.path.join(outputfolder, "instrumental")
+    }
+    separator.separate(save_path, custom_output_names)
+    return send_file(
+        custom_output_names["instrumental"] + ".wav",
+        mimetype='audio/wav',
+        as_attachment=True,
+        download_name="ytdl.wav"
+    )
+
+
+
+def yt_download(url):
+    # Create static folder if it doesn't exist
+    if not os.path.exists('static'):
+        os.makedirs('static')
+
+    # Use a safe filename from URL (you can improve this if needed)
+    url_name = url.split('=')[-1]  # Get the video ID
+    output_path = os.path.join(os.getcwd(), 'static', url_name, url_name + ".mp3")
+
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': output_path,  # Save to static/urlname.mp3
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'quiet': True,
+        'no_warnings': True,
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        
+        final_path = os.path.join(os.getcwd(), 'static', f"{url_name}.mp3")
+        return final_path  # Return the path of the downloaded file
+    except Exception as e:
+        raise Exception(f"Download failed: {str(e)}")
 
 @app.route('/helloworld', methods=['GET'])
 @cross_origin()
 def helloworld():
     return Response("Hello World")
+
 
 @app.route('/lyrics', methods=['POST'])
 @cross_origin()
@@ -34,62 +85,31 @@ def lyrics():
     text = data['text']
     audio_path = os.path.join(os.getcwd(), "static", text.split('.')[0], "vocals.wav")
     
-    with open(audio_path, 'rb') as audio_file:
-        audio_data = audio_file.read()
-    audio_data_io = BytesIO(audio_data)
-    
-    # Reset pointer to beginning of file
-    audio_data_io.seek(0)
-    
-    transcription = client.speech_to_text.convert(
-        file=audio_data_io,
-        model_id="scribe_v1",
-        language_code="eng",
-    )
-    
-    # Convert the transcription text to SRT format
-    srt_content = convert_to_srt(transcription.text)
-    
-    # Create a file-like object from the SRT content
+    result = whisper_model.transcribe(audio_path, task="transcribe")
+    srt_content = generate_srt(result['segments'])
     srt_io = BytesIO(srt_content.encode('utf-8'))
 
     return send_file(
         srt_io,
-        mimetype='text/plain', 
+        mimetype='text/plain',
         as_attachment=True,
         download_name=f"{text.split('.')[0]}.srt"
-    )   
+    )
 
-def convert_to_srt(transcription_text):
-    """Convert plain text to SRT format with timestamps."""
-    # Split text into sentences or phrases
-    sentences = re.split(r'(?<=[.!?])\s+', transcription_text.strip())
-    
-    srt_content = ""
-    for i, sentence in enumerate(sentences, 1):
-            
-        # Calculate simple timestamps (this is simplified)
-        # In reality, you'd want more accurate timestamps from a proper transcription service
-        start_time = (i - 1) * TIME_BETWEEN_SENTENCES 
-        end_time = i * TIME_BETWEEN_SENTENCES
-        
-        # Format timestamps as HH:MM:SS,mmm
-        start_formatted = format_timestamp(start_time)
-        end_formatted = format_timestamp(end_time)
-        
-        # Add to SRT content
-        srt_content += f"{i}\n{start_formatted} --> {end_formatted}\n{sentence}\n\n"
-    
-    return srt_content
 
 def format_timestamp(seconds):
-    """Format seconds to HH:MM:SS,mmm format."""
-    hours = int(seconds / 3600)
-    minutes = int((seconds % 3600) / 60)
-    seconds = int(seconds % 60)
     milliseconds = int((seconds - int(seconds)) * 1000)
-    
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+    time_str = time.strftime('%H:%M:%S', time.gmtime(seconds))
+    return f"{time_str},{milliseconds:03d}"
+
+def generate_srt(segments):
+    srt = ""
+    for i, segment in enumerate(segments, start=1):
+        start = format_timestamp(segment['start'])
+        end = format_timestamp(segment['end'])
+        text = segment['text'].strip()
+        srt += f"{i}\n{start} --> {end}\n{text}\n\n"
+    return srt
 
 @app.route('/process', methods=['POST'])
 @cross_origin()
