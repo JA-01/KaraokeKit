@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Loader2 } from 'lucide-svelte';
+	import LyricsDisplay from '$lib/components/LyricsDisplay.svelte';
 
 	let file = $state<File | null>(null);
 	let isDragging = $state(false);
 	let processedAudioUrl = $state<string | null>(null);
 	let initiatedProcessing = $state(false);
+	let audioElement = $state<HTMLAudioElement | null>(null);
 
 	function handleDrop(event: DragEvent) {
 		event.preventDefault();
@@ -42,22 +44,18 @@
 
 	async function uploadFile() {
 		if (!file) return;
-
 		const formData = new FormData();
 		formData.append('file', file);
-
 		try {
 			initiatedProcessing = true;
 			const response = await fetch(`${BACKEND_URL}/process`, {
 				method: 'POST',
 				body: formData
 			});
-
 			if (!response.ok) {
 				console.error('Failed to process audio:', await response.text());
 				return;
 			}
-
 			// get audio file from response
 			const blob = await response.blob();
 			processedAudioUrl = URL.createObjectURL(blob);
@@ -66,19 +64,23 @@
 			console.error('Error uploading file:', error);
 		}
 	}
+
+	function handleAudioLoaded(event: Event) {
+		audioElement = event.target as HTMLAudioElement;
+	}
 </script>
 
 <h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
 	Welcome to KaraokeKit!
 </h1>
-
 <p class="leading-7 [&:not(:first-child)]:mt-6">To get started, upload your audio track.</p>
-
 <div class="mx-auto flex w-full max-w-xl flex-col items-center gap-4 p-6">
 	<div
-		class={`flex h-48 w-full cursor-pointer flex-col items-center
+		class="flex h-48 w-full cursor-pointer flex-col items-center
             justify-center rounded-xl border-2 border-dashed px-4 text-center transition-colors
-            ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white dark:bg-black/10'}`}
+            {isDragging
+			? 'border-blue-500 bg-blue-50'
+			: 'border-gray-300 bg-white dark:bg-black/10'}"
 		onclick={triggerFileSelect}
 		ondragover={handleDragOver}
 		ondragleave={handleDragLeave}
@@ -89,7 +91,6 @@
 		</p>
 		<p class="mt-1 text-sm text-gray-500">or click to upload (MP3, WAV, OGG)</p>
 	</div>
-
 	<input
 		id="file-upload"
 		type="file"
@@ -97,13 +98,11 @@
 		class="hidden"
 		onchange={handleFileChange}
 	/>
-
 	{#if file}
 		<div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
 			Selected: {file.name}
 		</div>
 	{/if}
-
 	{#if !file}
 		<Button onclick={triggerFileSelect}>Choose File</Button>
 	{:else if initiatedProcessing}
@@ -113,13 +112,14 @@
 	{:else}
 		<Button onclick={uploadFile} disabled={!file}>Process Audio</Button>
 	{/if}
-
 	{#if processedAudioUrl}
 		<div class="mt-6 w-full max-w-xl rounded-xl bg-white p-4 shadow-md dark:bg-zinc-900">
-			<audio class="w-full" controls>
+			<audio class="w-full" controls onloadedmetadata={handleAudioLoaded}>
 				<source src={processedAudioUrl} type="audio/mpeg" />
 				Your browser does not support the audio element.
 			</audio>
+
+			<LyricsDisplay {audioElement} />
 		</div>
 	{/if}
 </div>
