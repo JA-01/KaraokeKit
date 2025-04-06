@@ -17,10 +17,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 separator = Separator()
 separator.load_model()
 
-whisper_model = whisper.load_model("small.en")
+whisper_model = whisper.load_model("small")
 
-@app.route('/ytdl', methods=['GET'])
-@cross_origin
+@app.route('/ytdl', methods=['POST'])
+@cross_origin()
 def yt_splitter():
     data = request.get_json()
     url = data.get('url')
@@ -43,21 +43,22 @@ def yt_splitter():
 
 
 def yt_download(url):
-    # Create static folder if it doesn't exist
     if not os.path.exists('static'):
         os.makedirs('static')
 
-    # Use a safe filename from URL (you can improve this if needed)
-    url_name = url.split('=')[-1]  # Get the video ID
-    output_path = os.path.join(os.getcwd(), 'static', url_name, url_name + ".mp3")
+    url_name = url.split('=')[-1]  # video ID
+    output_dir = os.path.join(os.getcwd(), 'static', url_name)
+    output_path = os.path.join(output_dir, url_name + ".mp3")
+
+    os.makedirs(output_dir, exist_ok=True)
 
     ydl_opts = {
         'format': 'bestaudio/best',
-        'outtmpl': output_path,  # Save to static/urlname.mp3
+        'outtmpl': output_path,  # Save to static/urlname/urlname.mp3
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '192',
+            'preferredquality': '320',
         }],
         'quiet': True,
         'no_warnings': True,
@@ -67,8 +68,7 @@ def yt_download(url):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         
-        final_path = os.path.join(os.getcwd(), 'static', f"{url_name}.mp3")
-        return final_path  # Return the path of the downloaded file
+        return output_path  # <-- RIGHT path now
     except Exception as e:
         raise Exception(f"Download failed: {str(e)}")
 
