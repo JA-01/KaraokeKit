@@ -22,8 +22,12 @@
 <ModeWatcher />
 <Navbar />
 
-<div>
-	<main class="flex flex-col items-center justify-center px-6 py-12">
-		{@render children()}
-	</main>
+<div
+	class={`min-h-screen text-white bg-gradient-to-br ${
+		isDarkMode ? 'from-gray-900 via-pink-900 to-black' : 'from-purple-600 via-pink-500 to-red-600'
+	}`}
+>
+    <main class="flex flex-col items-center justify-center px-6 py-12">
+        {@render children()}
+    </main>
 </div>
