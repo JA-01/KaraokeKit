@@ -2,8 +2,10 @@ from flask import *
 from flask_cors import CORS, cross_origin
 import os
 from audio_separator.separator import Separator
-import whisper
-from whisper.utils import get_writer
+from dotenv import load_dotenv
+from io import BytesIO
+import requests
+from elevenlabs.client import ElevenLabs
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -14,7 +16,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 separator = Separator()
 separator.load_model()
 
-model = whisper.load_model()
+client = ElevenLabs(
+    api_key="sk_8a9b175e93f1690b86df18ddcf1e45632b65578c74aafbc1"
+)
 
 @app.route('/helloworld', methods=['GET'])
 @cross_origin()
@@ -27,21 +31,28 @@ def lyrics():
     data = request.get_json()
     text = data['text']
 
-    audiofile = os.path.join(os.getcwd(), "static", text.split('.')[0], text)
-    if not os.path.isfile(audiofile):
-        return abort(404, description="File not found")
-    result = model.transcribe(audiofile, word_timestamps=True)
+    audio_path = os.path.join(os.getcwd(), "static", text.split('.')[0], text)
 
-    output_directory = os.path.join(os.getcwd(), "static", text.split('.')[0])
-    writer = get_writer("srt", output_directory)
-    writer(result, output_directory)
+    with open(audio_path, 'rb') as audio_file:
+        audio_data = audio_file.read()
 
+    audio_data_io = BytesIO(audio_data)
+
+    
+    transcription = client.speech_to_text.convert(
+        file=audio_data_io,
+        model_id="scribe_v1",
+        language_code="eng"
+    )
+
+    print(transcription.text)
     return send_file(
-        os.path.join(output_directory),
+        transcription,
         mimetype='text/plain', 
         as_attachment=True,
-        download_name="srtfile"
+        download_name=f"{text.split('.')[0]}.srt"
     )
+
 
 @app.route('/process', methods=['POST'])
 @cross_origin()
