@@ -9,7 +9,7 @@
 	let initiatedProcessing = $state(false);
 	let audioElement = $state<HTMLAudioElement | null>(null);
 
-	const BACKEND_URL = 'https://5fd9-66-129-246-4.ngrok-free.app';
+	const BACKEND_URL = 'https://dcdf-66-129-246-4.ngrok-free.app/';
 
 	async function uploadFile() {
 		if (!url) return;

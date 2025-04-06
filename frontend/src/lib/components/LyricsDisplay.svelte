@@ -31,11 +31,13 @@
 			isLoading = true;
 			error = null;
 
-			const BACKEND_URL = 'https://5fd9-66-129-246-4.ngrok-free.app';
+			const BACKEND_URL = 'https://dcdf-66-129-246-4.ngrok-free.app/';
 
+			let urlToBeSent = '';
 			if (youtubeUrl.length > 0) {
-				youtubeUrl = youtubeUrl.replace('https://www.youtube.com/watch?v=', '');
-				console.log(youtubeUrl);
+				urlToBeSent = youtubeUrl.replace('https://www.youtube.com/watch?v=', '');
+			} else {
+				urlToBeSent = audioFileName.split('.')[0];
 			}
 
 			const response = await fetch(`${BACKEND_URL}/lyrics`, {
@@ -44,7 +46,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					text: youtubeUrl
+					text: urlToBeSent
 				})
 			});
 

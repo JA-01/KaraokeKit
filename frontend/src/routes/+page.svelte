@@ -40,7 +40,7 @@
 		}
 	}
 
-	const BACKEND_URL = 'https://6f62-66-129-246-4.ngrok-free.app';
+	const BACKEND_URL = 'https://dcdf-66-129-246-4.ngrok-free.app/';
 
 	async function uploadFile() {
 		if (!file) return;
