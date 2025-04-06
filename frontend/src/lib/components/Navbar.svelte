@@ -12,7 +12,7 @@
 			<!-- <Button href="/signup" variant="ghost">Sign Up</Button>
 				<Button href="/login" variant="ghost">Log In</Button> -->
 			<Button href="/about" variant="ghost" class="">About</Button>
-			<Button href="/how-to-use" variant="ghost" class="">How To Use</Button>
+			<Button href="/how-to-use" variant="ghost" class="">How to Use</Button>
 			<LightDarkToggle />
 		</nav>
 	</div>
