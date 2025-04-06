@@ -22,7 +22,12 @@
 		isDragging = false;
 	}
 
-	function handleFileChange(event: Event) {
+	function triggerFileSelect() {
+		const input = document.getElementById('file-upload') as HTMLInputElement;
+		input?.click();
+	}
+
+	async function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
 		const selectedFile = input.files?.[0];
 		if (selectedFile && selectedFile.type.startsWith('audio/')) {
@@ -30,11 +35,47 @@
 		}
 	}
 
-	function triggerFileSelect() {
-		const input = document.getElementById('file-upload') as HTMLInputElement;
-		input?.click();
+	const BACKEND_URL = 'https://40aa-66-129-246-4.ngrok-free.app';
+
+	async function uploadFile() {
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append('file', file);
+
+		try {
+			const response = await fetch(`${BACKEND_URL}/process`, {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				console.error('Failed to process audio:', await response.text());
+				return;
+			}
+
+			console.log(response);
+
+			// get audio file from response
+			const blob = await response.blob();
+			const audioUrl = URL.createObjectURL(blob);
+
+			const audioElement = document.createElement('audio');
+			audioElement.src = audioUrl;
+			audioElement.controls = true;
+			audioElement.autoplay = true;
+			document.body.appendChild(audioElement);
+		} catch (error) {
+			console.error('Error uploading file:', error);
+		}
 	}
 </script>
+
+<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+	Welcome to KaraokeKit!
+</h1>
+
+<p class="leading-7 [&:not(:first-child)]:mt-6">To get started, upload your audio track.</p>
 
 <div class="mx-auto flex w-full max-w-xl flex-col items-center gap-4 p-6">
 	<div
@@ -66,5 +107,9 @@
 		</div>
 	{/if}
 
-	<Button on:click={triggerFileSelect}>Choose File</Button>
+	{#if !file}
+		<Button onclick={triggerFileSelect}>Choose File</Button>
+	{:else}
+		<Button onclick={uploadFile} disabled={!file}>Process Audio</Button>
+	{/if}
 </div>
