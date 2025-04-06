@@ -13,6 +13,8 @@
 		<nav class="hidden items-center gap-4 md:flex">
 			<!-- <Button href="/signup" variant="ghost">Sign Up</Button>
 				<Button href="/login" variant="ghost">Log In</Button> -->
+			<Button href="/" variant="ghost" class="">Home</Button>
+			<Button href="/youtube" variant="ghost" class="">YouTube Generator</Button>
 			<Button href="/about" variant="ghost" class="">About</Button>
 			<Button href="/how-to-use" variant="ghost" class="">How to Use</Button>
 			<LightDarkToggle />
